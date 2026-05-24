@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 
 # ضع التوكن الخاص بك هنا
-API_TOKEN = 'YOUR_BOT_TOKEN_HERE'
+API_TOKEN = '8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8'
 bot = telebot.TeleBot(API_TOKEN)
 
 # قاموس اللغات
