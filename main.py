@@ -56,5 +56,19 @@ def finish_order(message):
     user_id = message.chat.id
     data = user_data.get(user_id, {})
     
-    summary = (f"✅ تفاصيل طلبك:\n\nالخدمة: {data.get('service')}\nالطرف الآخر: {data.get('partner')}\nالمبلغ الإجمالي: {amount_str} USDT\n"
-               f"العمولة: 3% (تُخصم)\n\n⚠️ أرسل المبلغ لمحفظتنا:\n`{WALLET_ADDRESS}`\n\n
+    # رسالة تم إصلاح علامات التنصيص فيها
+    summary = (f"✅ تفاصيل طلبك:\n\nالخدمة: {data.get('service')}\n"
+               f"الطرف الآخر: {data.get('partner')}\n"
+               f"المبلغ الإجمالي: {amount_str} USDT\n"
+               f"العمولة: 3% (تُخصم)\n\n"
+               f"⚠️ أرسل المبلغ لمحفظتنا:\n`{WALLET_ADDRESS}`\n\n"
+               f"تواصل مع الأدمين عند التحويل: {ADMIN_USERNAME}")
+    
+    bot.send_message(user_id, summary, parse_mode="Markdown")
+    try:
+        bot.send_message(ADMIN_USERNAME, f"🔔 طلب جديد من {message.from_user.username}")
+    except: 
+        pass
+
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
