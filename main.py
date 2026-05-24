@@ -54,4 +54,28 @@ def show_main_menu(message, lang):
     markup.add(btn1, btn2)
     bot.send_message(message.chat.id, "اختر ما تريد من القائمة:", reply_markup=markup)
 
-bot.polling()
+# ... (باقي الكود الخاص بك الذي وضعته سابقاً) ...
+
+def show_main_menu(message, lang):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    
+    if lang == 'ar':
+        btn1 = types.InlineKeyboardButton("🤝 فتح طلب وساطة جديد", callback_data="new_order")
+        btn2 = types.InlineKeyboardButton("📄 شروط الخدمة", callback_data="terms")
+    else:
+        btn1 = types.InlineKeyboardButton("🤝 Open New Escrow", callback_data="new_order")
+        btn2 = types.InlineKeyboardButton("📄 Terms of Service", callback_data="terms")
+        
+    markup.add(btn1, btn2)
+    bot.send_message(message.chat.id, "اختر ما تريد من القائمة:", reply_markup=markup)
+
+# --- إضافة هذا الجزء في النهاية ---
+import time
+
+if __name__ == '__main__':
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(5) # انتظر 5 ثواني إذا حدث خطأ ثم أعد المحاولة
