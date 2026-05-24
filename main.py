@@ -71,6 +71,27 @@ def show_main_menu(message, lang):
 
 # --- إضافة هذا الجزء في النهاية ---
 import time
+# دالة معالجة زر فتح طلب وساطة
+@bot.callback_query_handler(func=lambda call: call.data == "new_order")
+def new_order_start(call):
+    bot.send_message(call.message.chat.id, "الرجاء إدخال اسم الخدمة أو المنتج:")
+    bot.register_next_step_handler(call.message, get_service_name)
+
+def get_service_name(message):
+    service_name = message.text
+    bot.send_message(message.chat.id, f"تم تحديد الخدمة: {service_name}\nالآن، أدخل يوزر (Username) الطرف الآخر:")
+    # هنا سنقوم بحفظ البيانات في قاعدة بيانات مؤقتة (سنطورها لاحقاً)
+    bot.register_next_step_handler(message, get_partner_username, service_name)
+
+def get_partner_username(message, service_name):
+    partner = message.text
+    bot.send_message(message.chat.id, f"الطرف الآخر: {partner}\nأخيراً، أدخل مبلغ الصفقة:")
+    bot.register_next_step_handler(message, finish_order, service_name, partner)
+
+def finish_order(message, service_name, partner):
+    amount = message.text
+    summary = f"✅ تم استلام تفاصيل طلبك:\n\nالخدمة: {service_name}\nالطرف الآخر: {partner}\nالمبلغ: {amount}\n\nجاري تجهيز عقد الوساطة..."
+    bot.send_message(message.chat.id, summary)
 
 if __name__ == '__main__':
     while True:
