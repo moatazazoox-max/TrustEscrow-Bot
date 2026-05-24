@@ -4,7 +4,7 @@ import time
 
 # التوكن يتم جلبه من Railway Variables
 import os
-API_TOKEN = os.getenv('8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8') 
+API_TOKEN = os.getenv'8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8' 
 bot = telebot.TeleBot(API_TOKEN)
 
 # الإعدادات الخاصة بك
