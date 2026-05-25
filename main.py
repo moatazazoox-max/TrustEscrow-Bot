@@ -41,6 +41,29 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('lang_'))
 def set_lang(call):
+    @bot.callback_query_handler(func=lambda call: call.data == "terms")
+def show_terms(call):
+    # نحدد اللغة بناءً على ما اختاره المستخدم سابقاً
+    lang = user_data.get(call.message.chat.id, {}).get('lang', 'ar')
+    
+    terms_text = {
+        'ar': "📜 *شروط وأمان TrustEscrow*\n\n"
+              "1. الأموال تُحفظ في محفظة وساطة مستقلة لا نملك صلاحية سحبها.\n"
+              "2. يتم تحويل الأموال للبائع فور تأكيد المشتري للاستلام.\n"
+              "3. في حال النزاع، يتم تجميد المحفظة فوراً وإيقاف أي تحويلات.\n"
+              "4. فريق الدعم يقوم بمراجعة المحادثات في حال النزاع لضمان العدالة.\n"
+              "5. عمولتنا 3% تُخصم فقط عند إتمام الصفقة بنجاح.",
+        'en': "📜 *TrustEscrow Safety Terms*\n\n"
+              "1. Funds are held in a secure, isolated escrow vault that we cannot withdraw from.\n"
+              "2. Funds are released to the seller only upon buyer confirmation.\n"
+              "3. In case of a dispute, the vault is frozen immediately.\n"
+              "4. Our support team reviews all chat logs to ensure fair resolution.\n"
+              "5. Our 3% fee applies only when the trade is successfully completed."
+    }
+    
+    bot.answer_callback_query(call.id, "جاري تحميل الشروط...", show_alert=False)
+    bot.send_message(call.message.chat.id, terms_text[lang], parse_mode="Markdown")
+
     lang = call.data.split('_')[1]
     user_data[call.message.chat.id] = {'lang': lang}
     markup = types.InlineKeyboardMarkup(row_width=1)
