@@ -2,57 +2,81 @@ import telebot
 from telebot import types
 import datetime
 
-# إعدادات البوت
 API_TOKEN = '8806803636:AAGx0ck3UwL594FLx_G2BaFfwwXDux7d1v8'
 bot = telebot.TeleBot(API_TOKEN)
 
 ADMIN_USERNAME = "@HE_5TE"
 WALLET_ADDRESS = "D5nB2WhVgKDpS2N3Zx7uXFNV1zMqXiBh777XnQFx4kpu"
-user_data = {}
 
-# وظيفة لحفظ السجلات (بدون قاعدة بيانات معقدة)
-def save_order(user_id, service, partner, amount):
-    with open("orders_log.txt", "a") as f:
-        f.write(f"{datetime.datetime.now()} | ID: {user_id} | الخدمة: {service} | الطرف الآخر: {partner} | المبلغ: {amount} USDT\n")
+# القاموس الثنائي للغة
+TEXTS = {
+    'ar': {
+        'welcome': "🛡️ *مرحباً بك في TrustEscrow*\n\nنظام وساطة رقمي آمن. لا نتحكم في الأموال، هي تُحفظ في محفظة وساطة مشفرة وتُرسل تلقائياً للبائع فور وصولها.\n\nفي حال حدوث نزاع، يتم تجميد المبلغ فوراً وفحص المراسلات لإرجاع الحق لأصحابه.\n\nاختر اللغة:",
+        'start_btn': "🚀 البدء بصفقة جديدة",
+        'terms_btn': "📄 شروط الأمان",
+        'service_prompt': "📦 ما هي الخدمة أو السلعة؟",
+        'partner_prompt': "👤 أدخل يوزر الطرف الآخر:",
+        'amount_prompt': "💰 أدخل المبلغ (USDT):",
+        'summary': "✅ *تم فتح الطلب بنجاح!*\n\nالخدمة: {s}\nالطرف الآخر: {p}\nالمبلغ: {a}\n\n⚠️ *ملاحظة أمان:* أموالك محمية في محفظة الوساطة ولا يمكن للبائع سحبها إلا بعد تأكيدك. في حال النزاع، يتم إرجاع المبلغ كاملاً للمشتري في دقائق.",
+    },
+    'en': {
+        'welcome': "🛡️ *Welcome to TrustEscrow*\n\nSecure digital escrow. We do not hold funds; they are kept in a secure vault and released automatically to the seller upon confirmation.\n\nIn case of a dispute, funds are frozen immediately for investigation and manual refunding.\n\nPlease select language:",
+        'start_btn': "🚀 Start New Escrow",
+        'terms_btn': "📄 Safety Terms",
+        'service_prompt': "📦 What is the service/item?",
+        'partner_prompt': "👤 Enter partner's username:",
+        'amount_prompt': "💰 Enter amount (USDT):",
+        'summary': "✅ *Order Created Successfully!*\n\nService: {s}\nPartner: {p}\nAmount: {a}\n\n⚠️ *Safety Note:* Your funds are protected in the escrow vault and cannot be released without your confirmation. Disputes lead to an immediate full refund to the buyer.",
+    }
+}
+
+user_data = {}
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("🤝 فتح طلب وساطة جديد", callback_data="new_order"))
-    bot.send_message(message.chat.id, "مرحباً بك في TrustEscrow! نحن وسيطك الآمن.", reply_markup=markup)
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    markup.add(types.InlineKeyboardButton("🇸🇦 العربية", callback_data="lang_ar"),
+               types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"))
+    bot.send_message(message.chat.id, "🛡️ Welcome to TrustEscrow | أهلاً بك في TrustEscrow", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('lang_'))
+def set_lang(call):
+    lang = call.data.split('_')[1]
+    user_data[call.message.chat.id] = {'lang': lang}
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup.add(types.InlineKeyboardButton(TEXTS[lang]['start_btn'], callback_data="new_order"),
+               types.InlineKeyboardButton(TEXTS[lang]['terms_btn'], callback_data="terms"))
+    bot.edit_message_text(TEXTS[lang]['welcome'], call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: call.data == "new_order")
-def new_order(call):
-    bot.send_message(call.message.chat.id, "أدخل اسم الخدمة:")
-    bot.register_next_step_handler(call.message, get_service)
-
-def get_service(message):
-    user_data[message.chat.id] = {'service': message.text}
-    bot.send_message(message.chat.id, "أدخل يوزر الطرف الآخر:")
-    bot.register_next_step_handler(message, get_partner)
+def ask_service(call):
+    lang = user_data[call.message.chat.id]['lang']
+    bot.send_message(call.message.chat.id, TEXTS[lang]['service_prompt'])
+    bot.register_next_step_handler(call.message, get_partner)
 
 def get_partner(message):
-    user_data[message.chat.id]['partner'] = message.text
-    bot.send_message(message.chat.id, "أدخل مبلغ الصفقة:")
-    bot.register_next_step_handler(message, confirm_order)
+    user_data[message.chat.id]['service'] = message.text
+    lang = user_data[message.chat.id]['lang']
+    bot.send_message(message.chat.id, TEXTS[lang]['partner_prompt'])
+    bot.register_next_step_handler(message, get_amount)
 
-def confirm_order(message):
+def get_amount(message):
+    user_data[message.chat.id]['partner'] = message.text
+    lang = user_data[message.chat.id]['lang']
+    bot.send_message(message.chat.id, TEXTS[lang]['amount_prompt'])
+    bot.register_next_step_handler(message, finish_order)
+
+def finish_order(message):
     amount = message.text
-    user_id = message.chat.id
-    data = user_data.get(user_id)
+    u_id = message.chat.id
+    d = user_data[u_id]
+    lang = d['lang']
     
-    # حفظ الصفقة في السجل
-    save_order(user_id, data['service'], data['partner'], amount)
+    msg = TEXTS[lang]['summary'].format(s=d['service'], p=d['partner'], a=amount)
+    msg += f"\n\n📍 *Wallet:* `{WALLET_ADDRESS}`\n📞 Support: {ADMIN_USERNAME}"
     
-    summary = (f"✅ تم فتح طلب وساطة!\n\n"
-               f"الخدمة: {data['service']}\n"
-               f"الطرف الآخر: {data['partner']}\n"
-               f"المبلغ: {amount} USDT\n\n"
-               f"⚠️ أرسل المبلغ للمحفظة:\n`{WALLET_ADDRESS}`\n\n"
-               f"بعد التحويل، تواصل مع الأدمين: {ADMIN_USERNAME}")
-    
-    bot.send_message(user_id, summary, parse_mode="Markdown")
-    bot.send_message(ADMIN_USERNAME, f"🔔 طلب جديد!\nالمشتري: {message.from_user.username}\nالخدمة: {data['service']}\nالمبلغ: {amount}")
+    bot.send_message(u_id, msg, parse_mode="Markdown")
+    bot.send_message(ADMIN_USERNAME, f"🔔 New Order from {message.from_user.username}\nService: {d['service']}\nAmount: {amount}")
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
